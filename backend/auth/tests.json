@@ -1,0 +1,50 @@
+{
+  "tests": [
+    {
+      "name": "GET ?action=me без токена — 401",
+      "method": "GET",
+      "path": "/?action=me",
+      "expectedStatus": 401,
+      "bodyMatcher": "partial",
+      "expectedBody": {"error": "string"}
+    },
+    {
+      "name": "POST ?action=register — успешная регистрация",
+      "method": "POST",
+      "path": "/?action=register",
+      "body": {
+        "username": "testuser_vibe",
+        "email": "test_vibe@example.com",
+        "password": "password123",
+        "display_name": "Test Vibe User"
+      },
+      "expectedStatus": 201,
+      "bodyMatcher": "partial",
+      "expectedBody": {"token": "string"}
+    },
+    {
+      "name": "POST ?action=login — успешный вход",
+      "method": "POST",
+      "path": "/?action=login",
+      "body": {
+        "email": "test_vibe@example.com",
+        "password": "password123"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"token": "string"}
+    },
+    {
+      "name": "POST ?action=login — неверный пароль",
+      "method": "POST",
+      "path": "/?action=login",
+      "body": {
+        "email": "test_vibe@example.com",
+        "password": "wrongpassword"
+      },
+      "expectedStatus": 401,
+      "bodyMatcher": "partial",
+      "expectedBody": {"error": "string"}
+    }
+  ]
+}

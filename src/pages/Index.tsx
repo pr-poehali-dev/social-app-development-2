@@ -1,5 +1,11 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
+import { UserData } from "./Auth";
+
+interface IndexProps {
+  user: UserData;
+  onLogout: () => void;
+}
 
 const FILTERS = ["Все", "Фото", "Видео", "Музыка", "Арт"];
 
@@ -82,7 +88,7 @@ const PHOTO_FILTERS = [
   { name: "Ч/Б", style: { filter: "grayscale(1) contrast(1.2)" } },
 ];
 
-export default function Index() {
+export default function Index({ user, onLogout }: IndexProps) {
   const [activeTab, setActiveTab] = useState("feed");
   const [activeFilter, setActiveFilter] = useState("Все");
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
@@ -324,26 +330,26 @@ export default function Index() {
 
             <h3 className="text-xs uppercase tracking-wider mb-3 font-medium" style={{ color: "rgba(255,255,255,0.4)" }}>Рекомендуем</h3>
             <div className="flex flex-col gap-3">
-              {RECOMMENDED.map(user => (
-                <div key={user.id} className="rounded-2xl p-4 flex items-center gap-3 hover-lift" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              {RECOMMENDED.map(rec => (
+                <div key={rec.id} className="rounded-2xl p-4 flex items-center gap-3 hover-lift" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <div className="p-[2px] rounded-full" style={{ background: "linear-gradient(135deg, #a855f7, #ec4899, #f97316)" }}>
                     <div className="w-12 h-12 rounded-full overflow-hidden">
-                      <img src={user.avatar} alt={user.name} />
+                      <img src={rec.avatar} alt={rec.name} />
                     </div>
                   </div>
                   <div className="flex-1">
-                    <div className="font-semibold text-sm text-white">{user.name}</div>
-                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{user.username} · {user.followers} подписчиков</div>
+                    <div className="font-semibold text-sm text-white">{rec.name}</div>
+                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{rec.username} · {rec.followers} подписчиков</div>
                   </div>
                   <button
-                    onClick={() => toggleFollow(user.id)}
+                    onClick={() => toggleFollow(rec.id)}
                     className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
-                    style={follows.has(user.id)
+                    style={follows.has(rec.id)
                       ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }
                       : { background: "linear-gradient(135deg, #a855f7, #ec4899)", color: "white", boxShadow: "0 4px 15px rgba(168,85,247,0.35)" }
                     }
                   >
-                    {follows.has(user.id) ? "Вы подписаны" : "Подписаться"}
+                    {follows.has(rec.id) ? "Вы подписаны" : "Подписаться"}
                   </button>
                 </div>
               ))}
@@ -469,8 +475,9 @@ export default function Index() {
             <div className="relative h-44 overflow-hidden">
               <div className="w-full h-full" style={{ background: "linear-gradient(135deg, #1a0533 0%, #0d1a3a 50%, #0a0a0f 100%)" }} />
               <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(168,85,247,0.3) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(236,72,153,0.2) 0%, transparent 60%)" }} />
-              <button className="absolute top-4 right-4 p-2 rounded-xl" style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(10px)" }}>
-                <Icon name="Settings" size={18} className="text-white" onClick={() => {}} />
+              <button onClick={onLogout} className="absolute top-4 right-4 p-2 rounded-xl flex items-center gap-1.5" style={{ background: "rgba(255,255,255,0.08)", backdropFilter: "blur(10px)", color: "rgba(255,255,255,0.7)" }}>
+                <Icon name="LogOut" size={16} className="text-white" />
+                <span className="text-xs text-white">Выйти</span>
               </button>
             </div>
 
@@ -478,7 +485,11 @@ export default function Index() {
               <div className="flex items-end justify-between mb-4">
                 <div className="p-[3px] rounded-full" style={{ background: "linear-gradient(135deg, #a855f7, #ec4899, #f97316)", boxShadow: "0 8px 30px rgba(168,85,247,0.5)" }}>
                   <div className="w-24 h-24 rounded-full overflow-hidden" style={{ border: "4px solid #0a0a0f" }}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=me&backgroundColor=b6e3f4" alt="Профиль" className="w-full h-full object-cover" />
+                    <img
+                      src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
+                      alt={user.display_name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
                 <button className="px-5 py-2.5 rounded-2xl text-sm font-semibold hover-lift transition-all text-white" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}>
@@ -486,17 +497,17 @@ export default function Index() {
                 </button>
               </div>
 
-              <h2 className="font-display text-xl font-bold text-white">Александр Некто</h2>
-              <p className="text-sm mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>@alexander_n</p>
+              <h2 className="font-display text-xl font-bold text-white">{user.display_name}</h2>
+              <p className="text-sm mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>@{user.username}</p>
               <p className="text-sm leading-relaxed mb-4" style={{ color: "rgba(255,255,255,0.75)" }}>
-                Фотограф & дизайнер ✨ Создаю визуальные истории о мире вокруг. Москва 📍
+                {user.bio || "Привет! Я только что зарегистрировался в VIBE ✨"}
               </p>
 
               <div className="grid grid-cols-3 gap-3 mb-5">
                 {[
-                  { label: "Публикации", value: "84" },
-                  { label: "Подписчики", value: "4.2K" },
-                  { label: "Подписки", value: "312" },
+                  { label: "Публикации", value: String(user.posts_count) },
+                  { label: "Подписчики", value: String(user.followers_count) },
+                  { label: "Подписки", value: String(user.following_count) },
                 ].map(stat => (
                   <div key={stat.label} className="rounded-2xl p-3 text-center hover-lift cursor-pointer" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                     <div className="font-display text-lg font-bold gradient-text">{stat.value}</div>
